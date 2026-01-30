@@ -1,177 +1,344 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPS Live Tracker</title>
+    <title>🛰️ GPS Tracker - Live Dashboard</title>
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
-        :root {
-            --bg: #0a0f1a;
-            --card: #111827;
-            --accent: #3b82f6;
-            --green: #22c55e;
-            --text: #f1f5f9;
-            --muted: #64748b;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
             min-height: 100vh;
         }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        header {
-            background: var(--card);
+        .header {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
             padding: 16px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #1e293b;
+            border-bottom: 1px solid #334155;
         }
 
-        .logo {
-            font-size: 20px;
-            font-weight: 700;
+        .header h1 {
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .logo span {
-            color: var(--accent);
-        }
-
         .status-badge {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(34, 197, 94, 0.15);
+            gap: 6px;
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
 
-        .status-dot {
+        .status-online {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid #22c55e;
+        }
+
+        .status-offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .status-lastknown {
+            background: rgba(234, 179, 8, 0.2);
+            color: #eab308;
+            border: 1px solid #eab308;
+        }
+
+        .pulse {
             width: 10px;
             height: 10px;
-            background: var(--green);
             border-radius: 50%;
             animation: pulse 2s infinite;
         }
 
+        .pulse-green {
+            background: #22c55e;
+        }
+
+        .pulse-red {
+            background: #ef4444;
+        }
+
+        .pulse-yellow {
+            background: #eab308;
+        }
+
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 0;
+            height: calc(100vh - 70px);
+        }
+
+        @media (max-width: 800px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr auto;
+            }
         }
 
         #map {
-            flex: 1;
+            width: 100%;
+            height: 100%;
             z-index: 1;
         }
 
-        .info-panel {
-            background: var(--card);
-            padding: 20px 24px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            border-top: 1px solid #1e293b;
+        .sidebar {
+            background: rgba(15, 23, 42, 0.95);
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid #334155;
         }
 
-        .info-item {
-            text-align: center;
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #334155;
         }
 
-        .info-label {
-            color: var(--muted);
-            font-size: 12px;
+        .card-title {
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: #0f172a;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
             margin-bottom: 4px;
         }
 
-        .info-value {
-            font-size: 18px;
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .stat-value.green {
+            color: #22c55e;
+        }
+
+        .stat-value.red {
+            color: #ef4444;
+        }
+
+        .stat-value.yellow {
+            color: #eab308;
+        }
+
+        .coord-display {
+            font-family: 'Consolas', monospace;
+            font-size: 1rem;
+            color: #94a3b8;
+            padding: 10px;
+            background: #0f172a;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .last-update {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 12px;
+        }
+
+        .log-container {
+            margin-top: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #64748b;
+            padding: 4px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .log-entry.success {
+            color: #22c55e;
+        }
+
+        .log-entry.error {
+            color: #ef4444;
+        }
+
+        .config-section {
+            margin-top: 20px;
+        }
+
+        .config-input {
+            width: 100%;
+            padding: 10px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #f1f5f9;
+            font-size: 0.9rem;
+        }
+
+        .config-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 8px;
+            color: white;
             font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s, opacity 0.2s;
         }
 
-        .info-value.accent { color: var(--accent); }
-        .info-value.green { color: var(--green); }
+        .btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
 
-        /* Custom marker */
-        .tracker-icon {
-            background: var(--accent);
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
+        /* Custom marker styles */
+        .marker-online {
+            background: #22c55e;
             border: 3px solid #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
         }
 
-        .leaflet-popup-content-wrapper {
-            background: var(--card);
-            color: var(--text);
-            border-radius: 12px;
-        }
-
-        .leaflet-popup-tip {
-            background: var(--card);
-        }
-
-        @media (max-width: 600px) {
-            header { padding: 12px 16px; }
-            .logo { font-size: 16px; }
-            .info-panel { padding: 16px; }
+        .marker-offline {
+            background: #64748b;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                📍 <span>GPS</span> Live Tracker
-            </div>
-            <div class="status-badge">
-                <div class="status-dot"></div>
-                <span id="connection-status">Đang kết nối...</span>
-            </div>
-        </header>
 
+<body>
+
+    <div class="header">
+        <h1>🛰️ GPS Tracker</h1>
+        <div id="statusBadge" class="status-badge status-offline">
+            <div class="pulse pulse-red"></div>
+            <span>Đang kết nối...</span>
+        </div>
+    </div>
+
+    <div class="container">
         <div id="map"></div>
 
-        <div class="info-panel">
-            <div class="info-item">
-                <div class="info-label">Vĩ độ</div>
-                <div class="info-value accent" id="lat">--</div>
+        <div class="sidebar">
+            <!-- Location Card -->
+            <div class="card">
+                <div class="card-title">📍 Vị trí hiện tại</div>
+                <div class="coord-display" id="coordDisplay">
+                    Đang tải...
+                </div>
+                <div class="last-update" id="lastUpdate">
+                    Chưa có dữ liệu
+                </div>
             </div>
-            <div class="info-item">
-                <div class="info-label">Kinh độ</div>
-                <div class="info-value accent" id="lng">--</div>
+
+            <!-- Stats Card -->
+            <div class="card">
+                <div class="card-title">📊 Thông số</div>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Tốc độ</div>
+                        <div class="stat-value" id="speedValue">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Vệ tinh</div>
+                        <div class="stat-value green" id="satsValue">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Sóng 4G</div>
+                        <div class="stat-value" id="csqValue">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Trạng thái</div>
+                        <div class="stat-value" id="gpsStatus">--</div>
+                    </div>
+                </div>
             </div>
-            <div class="info-item">
-                <div class="info-label">Tốc độ</div>
-                <div class="info-value" id="speed">-- km/h</div>
+
+            <!-- Log Card -->
+            <div class="card">
+                <div class="card-title">📝 Activity Log</div>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry">Khởi động dashboard...</div>
+                </div>
             </div>
-            <div class="info-item">
-                <div class="info-label">Pin</div>
-                <div class="info-value green" id="battery">--%</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Cập nhật</div>
-                <div class="info-value" id="updated">--</div>
+
+            <!-- Config Section -->
+            <div class="config-section">
+                <input type="text" class="config-input" id="workerUrl"
+                    placeholder="Worker URL (e.g., https://gps-tracker.xxx.workers.dev)" value="">
+                <button class="btn" onclick="saveConfig()">💾 Lưu cấu hình</button>
             </div>
         </div>
     </div>
@@ -180,92 +347,203 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // ==================== CONFIGURATION ====================
-        // ⚠️ UPDATE THIS URL AFTER DEPLOYING CLOUDFLARE WORKER
-        const API_URL = 'https://gps-tracker-api.your-subdomain.workers.dev/api/location';
+        // ================== CONFIG ==================
+        const DEFAULT_WORKER_URL = 'https://gps-tracker.your-subdomain.workers.dev';
         const DEVICE_ID = 'device_01';
         const REFRESH_INTERVAL = 5000; // 5 seconds
+        const OFFLINE_THRESHOLD = 300; // 5 minutes in seconds
 
-        // ==================== MAP SETUP ====================
-        const map = L.map('map').setView([10.8231, 106.6297], 13); // Default: Ho Chi Minh City
+        let workerUrl = localStorage.getItem('workerUrl') || DEFAULT_WORKER_URL;
+        document.getElementById('workerUrl').value = workerUrl;
 
-        // Dark theme tiles
+        // ================== MAP SETUP ==================
+        const defaultLat = 10.823099;
+        const defaultLng = 106.629662;
+
+        const map = L.map('map').setView([defaultLat, defaultLng], 15);
+
+        // Dark map tiles
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
             maxZoom: 19
         }).addTo(map);
 
-        // Custom marker
-        const trackerIcon = L.divIcon({
-            className: 'tracker-icon',
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
+        // Custom marker icons
+        const onlineIcon = L.divIcon({
+            className: 'marker-online-wrapper',
+            html: '<div style="background:#22c55e;border:3px solid #fff;border-radius:50%;width:20px;height:20px;box-shadow:0 0 15px rgba(34,197,94,0.8);"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
         });
 
-        let marker = null;
-        let isFirstLoad = true;
+        const offlineIcon = L.divIcon({
+            className: 'marker-offline-wrapper',
+            html: '<div style="background:#64748b;border:3px solid #fff;border-radius:50%;width:20px;height:20px;"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
 
-        // ==================== FETCH DATA ====================
+        const lastKnownIcon = L.divIcon({
+            className: 'marker-lastknown-wrapper',
+            html: '<div style="background:#eab308;border:3px solid #fff;border-radius:50%;width:20px;height:20px;box-shadow:0 0 10px rgba(234,179,8,0.6);"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        let marker = L.marker([defaultLat, defaultLng], { icon: offlineIcon }).addTo(map);
+        let path = [];
+        let polyline = L.polyline([], { color: '#3b82f6', weight: 3, opacity: 0.7 }).addTo(map);
+
+        // ================== FUNCTIONS ==================
+        function addLog(message, type = 'info') {
+            const container = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const time = new Date().toLocaleTimeString('vi-VN');
+            entry.textContent = `[${time}] ${message}`;
+            container.insertBefore(entry, container.firstChild);
+
+            // Keep only last 20 entries
+            while (container.children.length > 20) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        function updateStatus(isOnline, status) {
+            const badge = document.getElementById('statusBadge');
+            const statusEl = document.getElementById('gpsStatus');
+
+            if (status === 'LAST_KNOWN') {
+                badge.className = 'status-badge status-lastknown';
+                badge.innerHTML = '<div class="pulse pulse-yellow"></div><span>Last Known</span>';
+                statusEl.textContent = 'LK';
+                statusEl.className = 'stat-value yellow';
+            } else if (isOnline) {
+                badge.className = 'status-badge status-online';
+                badge.innerHTML = '<div class="pulse pulse-green"></div><span>Online</span>';
+                statusEl.textContent = 'LIVE';
+                statusEl.className = 'stat-value green';
+            } else {
+                badge.className = 'status-badge status-offline';
+                badge.innerHTML = '<div class="pulse pulse-red"></div><span>Offline</span>';
+                statusEl.textContent = 'OFF';
+                statusEl.className = 'stat-value red';
+            }
+        }
+
+        function formatAge(seconds) {
+            if (seconds < 60) return `${seconds}s ago`;
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            return `${Math.floor(seconds / 3600)}h ago`;
+        }
+
         async function fetchLocation() {
             try {
-                const response = await fetch(`${API_URL}?deviceId=${DEVICE_ID}`);
+                const url = `${workerUrl}/api/location?deviceId=${DEVICE_ID}`;
+                const response = await fetch(url);
 
                 if (!response.ok) {
+                    if (response.status === 404) {
+                        addLog('Device chưa gửi dữ liệu', 'error');
+                        updateStatus(false, 'OFFLINE');
+                        return;
+                    }
                     throw new Error(`HTTP ${response.status}`);
                 }
 
                 const data = await response.json();
-                updateUI(data);
-                updateMarker(data.lat, data.lng);
 
-                document.getElementById('connection-status').textContent = 'Trực tuyến';
+                // Update map
+                const lat = data.lat;
+                const lng = data.lng;
+                const isOnline = data.ageSeconds < OFFLINE_THRESHOLD;
+                const status = data.status || 'LIVE';
 
-            } catch (error) {
-                console.error('Fetch error:', error);
-                document.getElementById('connection-status').textContent = 'Mất kết nối';
-            }
-        }
-
-        function updateUI(data) {
-            document.getElementById('lat').textContent = data.lat?.toFixed(6) || '--';
-            document.getElementById('lng').textContent = data.lng?.toFixed(6) || '--';
-            document.getElementById('speed').textContent = `${data.speed?.toFixed(1) || 0} km/h`;
-            document.getElementById('battery').textContent = `${data.battery || 100}%`;
-
-            // Format time
-            if (data.updatedAt) {
-                const date = new Date(data.updatedAt);
-                document.getElementById('updated').textContent = date.toLocaleTimeString('vi-VN');
-            }
-        }
-
-        function updateMarker(lat, lng) {
-            if (!lat || !lng) return;
-
-            if (marker) {
+                // Update marker position and icon
                 marker.setLatLng([lat, lng]);
-            } else {
-                marker = L.marker([lat, lng], { icon: trackerIcon })
-                    .addTo(map)
-                    .bindPopup(`<strong>Device: ${DEVICE_ID}</strong><br>Lat: ${lat}<br>Lng: ${lng}`);
-            }
 
-            // Center map on first load
-            if (isFirstLoad) {
-                map.setView([lat, lng], 15);
-                isFirstLoad = false;
+                if (status === 'LAST_KNOWN') {
+                    marker.setIcon(lastKnownIcon);
+                } else if (isOnline) {
+                    marker.setIcon(onlineIcon);
+                } else {
+                    marker.setIcon(offlineIcon);
+                }
+
+                // Update path
+                if (status === 'LIVE' && path.length === 0 ||
+                    (path.length > 0 && (path[path.length - 1][0] !== lat || path[path.length - 1][1] !== lng))) {
+                    path.push([lat, lng]);
+                    if (path.length > 100) path.shift(); // Keep last 100 points
+                    polyline.setLatLngs(path);
+                }
+
+                // Update UI
+                document.getElementById('coordDisplay').textContent =
+                    `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+                document.getElementById('lastUpdate').textContent =
+                    `Cập nhật: ${formatAge(data.ageSeconds)} (${data.updatedAt || 'N/A'})`;
+
+                document.getElementById('speedValue').textContent =
+                    `${(data.speed || 0).toFixed(1)} km/h`;
+
+                document.getElementById('satsValue').textContent =
+                    `${data.satellites || 0}`;
+
+                document.getElementById('csqValue').textContent =
+                    `${data.csq || 0}/31`;
+
+                updateStatus(isOnline, status);
+
+                addLog(`Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)} [${status}]`, 'success');
+
+            } catch (err) {
+                console.error('Fetch error:', err);
+                addLog(`Lỗi: ${err.message}`, 'error');
+                updateStatus(false, 'OFFLINE');
             }
         }
 
-        // ==================== START ====================
+        function saveConfig() {
+            const url = document.getElementById('workerUrl').value.trim();
+            if (url) {
+                workerUrl = url;
+                localStorage.setItem('workerUrl', url);
+                addLog('Đã lưu Worker URL', 'success');
+                fetchLocation();
+            }
+        }
+
+        // Center map on marker
+        function centerMap() {
+            const pos = marker.getLatLng();
+            map.setView(pos, 16);
+        }
+
+        // Add center button to map
+        L.Control.CenterButton = L.Control.extend({
+            onAdd: function (map) {
+                const btn = L.DomUtil.create('button');
+                btn.innerHTML = '📍';
+                btn.style.cssText = 'width:36px;height:36px;font-size:20px;cursor:pointer;background:#1e293b;border:none;border-radius:8px;';
+                btn.onclick = centerMap;
+                return btn;
+            }
+        });
+        new L.Control.CenterButton({ position: 'topright' }).addTo(map);
+
+        // ================== INIT ==================
+        addLog('Dashboard khởi động');
+        addLog(`Refresh: ${REFRESH_INTERVAL / 1000}s`);
+
         // Initial fetch
         fetchLocation();
 
         // Auto-refresh
         setInterval(fetchLocation, REFRESH_INTERVAL);
-
-        console.log('🚀 GPS Tracker Dashboard loaded');
-        console.log(`📡 Fetching from: ${API_URL}`);
     </script>
+
 </body>
+
 </html>
