@@ -348,7 +348,7 @@
 
     <script>
         // ================== CONFIG ==================
-        const DEFAULT_WORKER_URL = 'https://gps-tracker.your-subdomain.workers.dev';
+        const DEFAULT_WORKER_URL = 'https://gps-tracker.thanhvu220809.workers.dev';
         const DEVICE_ID = 'device_01';
         const REFRESH_INTERVAL = 5000; // 5 seconds
         const OFFLINE_THRESHOLD = 300; // 5 minutes in seconds
@@ -451,7 +451,10 @@
                     throw new Error(`HTTP ${response.status}`);
                 }
 
-                const data = await response.json();
+                const response_data = await response.json();
+
+                // API returns { success: true, data: {...} }
+                const data = response_data.data || response_data;
 
                 // Update map
                 const lat = data.lat;
@@ -492,7 +495,7 @@
                     `${data.satellites || 0}`;
 
                 document.getElementById('csqValue').textContent =
-                    `${data.csq || 0}/31`;
+                    `${data.signalQuality || data.csq || 0}/31`;
 
                 updateStatus(isOnline, status);
 
