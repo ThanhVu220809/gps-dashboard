@@ -90,6 +90,7 @@
             flex: 1;
             max-width: 680px;
             margin: 0 24px;
+            position: relative;
         }
 
         .search-wrapper {
@@ -113,7 +114,7 @@
             margin-right: 12px;
         }
 
-        .search-input {
+        #searchInput {
             flex: 1;
             border: none;
             background: transparent;
@@ -122,68 +123,29 @@
             outline: none;
         }
 
-        .search-input::placeholder {
+        #searchInput::placeholder {
             color: #5f6368;
         }
 
-        /* Status Badge */
-        .status-badge {
-            display: flex;
+        .search-clear {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: none;
             align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 500;
-            margin-left: auto;
-        }
-
-        .status-online {
-            background: #e6f4ea;
-            color: #137333;
-        }
-
-        .status-offline {
-            background: #fce8e6;
-            color: #c5221f;
-        }
-
-        .status-lastknown {
-            background: #fef7e0;
-            color: #b06000;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
+            justify-content: center;
+            color: #5f6368;
             border-radius: 50%;
-            animation: pulse 2s infinite ease-in-out;
         }
 
-        .dot-green {
-            background: #34a853;
+        .search-clear:hover {
+            background: rgba(60, 64, 67, 0.08);
         }
 
-        .dot-red {
-            background: #ea4335;
-        }
-
-        .dot-yellow {
-            background: #fbbc04;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.5;
-                transform: scale(1.2);
-            }
+        .search-clear.show {
+            display: flex;
         }
 
         /* ============ MAIN LAYOUT ============ */
@@ -290,6 +252,80 @@
             font-weight: 500;
         }
 
+        /* Directions Panel */
+        .directions-panel {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e8eaed;
+            display: none;
+        }
+
+        .directions-panel.show {
+            display: block;
+        }
+
+        .directions-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .directions-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .directions-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5f6368;
+        }
+
+        .directions-close:hover {
+            background: rgba(60, 64, 67, 0.08);
+        }
+
+        .directions-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .directions-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        .directions-info {
+            display: flex;
+            gap: 16px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #5f6368;
+        }
+
+        .directions-info span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         /* History Section */
         .history-section {
             flex: 1;
@@ -379,6 +415,7 @@
             padding: 40px 24px;
             color: #9aa0a6;
             font-size: 14px;
+            list-style: none;
         }
 
         /* Log Section */
@@ -421,7 +458,7 @@
         }
 
         .log-container.show {
-            max-height: 180px;
+            max-height: 200px;
             overflow-y: auto;
         }
 
@@ -447,58 +484,6 @@
 
         .log-entry.error {
             color: #c5221f;
-        }
-
-        /* Config Section */
-        .config-section {
-            padding: 20px 24px;
-            border-top: 1px solid #e8eaed;
-            background: #f8f9fa;
-        }
-
-        .config-label {
-            font-size: 12px;
-            font-weight: 500;
-            color: #5f6368;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .config-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #202124;
-            background: #fff;
-        }
-
-        .config-input:focus {
-            outline: none;
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px 24px;
-            background: #1a73e8;
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn:hover {
-            background: #1557b0;
         }
 
         /* ============ MAP ============ */
@@ -534,11 +519,17 @@
             align-items: center;
             justify-content: center;
             color: #666;
+            transition: all 0.2s;
         }
 
         .map-btn:hover {
             background: #f8f9fa;
             color: #1a73e8;
+        }
+
+        .map-btn.active {
+            background: #1a73e8;
+            color: #fff;
         }
 
         /* Loading */
@@ -554,6 +545,7 @@
             align-items: center;
             justify-content: center;
             z-index: 9999;
+            transition: opacity 0.3s;
         }
 
         .loading-overlay.hidden {
@@ -583,6 +575,12 @@
         }
 
         /* Responsive */
+        @media (max-width: 900px) {
+            .search-box {
+                max-width: 400px;
+            }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
@@ -598,6 +596,23 @@
             .search-box {
                 display: none;
             }
+        }
+
+        /* Place Autocomplete Dropdown */
+        .pac-container {
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            margin-top: 4px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .pac-item {
+            padding: 10px 16px;
+            cursor: pointer;
+        }
+
+        .pac-item:hover {
+            background: #f8f9fa;
         }
     </style>
 </head>
@@ -632,13 +647,11 @@
         <div class="search-box">
             <div class="search-wrapper">
                 <span class="material-icons-outlined search-icon">search</span>
-                <input type="text" class="search-input" id="addressDisplay" placeholder="Tìm kiếm vị trí..." readonly>
+                <input type="text" id="searchInput" placeholder="Tìm kiếm địa điểm...">
+                <button class="search-clear" id="searchClear" onclick="clearSearch()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
             </div>
-        </div>
-
-        <div id="statusBadge" class="status-badge status-offline">
-            <div class="status-dot dot-red"></div>
-            <span>Đang kết nối...</span>
         </div>
     </header>
 
@@ -681,6 +694,25 @@
                 <span id="lastUpdate">Chưa có dữ liệu</span>
             </div>
 
+            <!-- Directions Panel -->
+            <div class="directions-panel" id="directionsPanel">
+                <div class="directions-header">
+                    <div class="directions-title">
+                        <span class="material-icons-outlined">directions</span>
+                        Chỉ đường
+                    </div>
+                    <button class="directions-close" onclick="closeDirections()">
+                        <span class="material-icons-outlined">close</span>
+                    </button>
+                </div>
+                <input type="text" class="directions-input" id="destinationInput" placeholder="Nhập điểm đến...">
+                <div class="directions-info" id="directionsInfo" style="display:none;">
+                    <span><span class="material-icons-outlined">schedule</span> <span id="dirDuration">--</span></span>
+                    <span><span class="material-icons-outlined">straighten</span> <span
+                            id="dirDistance">--</span></span>
+                </div>
+            </div>
+
             <div class="history-section">
                 <div class="section-title">
                     <span class="material-icons-outlined">history</span>
@@ -705,26 +737,25 @@
                     </div>
                 </div>
             </div>
-
-            <div class="config-section">
-                <div class="config-label">Worker URL</div>
-                <input type="text" class="config-input" id="workerUrl"
-                    placeholder="https://gps-tracker.xxx.workers.dev">
-                <button class="btn" onclick="saveConfig()">
-                    <span class="material-icons-outlined">save</span>
-                    Lưu cấu hình
-                </button>
-            </div>
         </aside>
 
         <div class="map-container">
             <div id="map"></div>
             <div class="map-controls">
-                <button class="map-btn" onclick="centerMap()" title="Về vị trí hiện tại">
+                <button class="map-btn" onclick="centerMap()" title="Về vị trí thiết bị">
                     <span class="material-icons-outlined">my_location</span>
                 </button>
                 <button class="map-btn" onclick="toggleMapType()" title="Đổi kiểu bản đồ">
                     <span class="material-icons-outlined">layers</span>
+                </button>
+                <button class="map-btn" id="directionsBtn" onclick="toggleDirections()" title="Chỉ đường">
+                    <span class="material-icons-outlined">directions</span>
+                </button>
+                <button class="map-btn" onclick="toggleTraffic()" title="Giao thông">
+                    <span class="material-icons-outlined">traffic</span>
+                </button>
+                <button class="map-btn" onclick="toggleStreetView()" title="Street View">
+                    <span class="material-icons-outlined">streetview</span>
                 </button>
             </div>
         </div>
@@ -732,17 +763,17 @@
 
     <script>
         // ================== CONFIG ==================
-        const DEFAULT_WORKER_URL = 'https://gps-tracker.thanhvu220809.workers.dev';
+        const WORKER_URL = 'https://gps-tracker.thanhvu220809.workers.dev';
         const DEVICE_ID = 'device_01';
         const REFRESH_INTERVAL = 5000;
         const OFFLINE_THRESHOLD = 300;
 
-        let workerUrl = localStorage.getItem('workerUrl') || DEFAULT_WORKER_URL;
-        document.getElementById('workerUrl').value = workerUrl;
-
         let map, marker, polyline, infoWindow, geocoder;
+        let placesService, autocomplete, directionsService, directionsRenderer;
+        let trafficLayer, streetViewPanorama;
         let path = [];
         let locationHistory = JSON.parse(localStorage.getItem('locationHistory') || '[]');
+        let showTraffic = false;
 
         // ================== INIT MAP ==================
         function initMap() {
@@ -755,14 +786,17 @@
                 disableDefaultUI: false,
                 zoomControl: true,
                 mapTypeControl: false,
-                streetViewControl: true,
+                streetViewControl: false,
                 fullscreenControl: true,
+                rotateControl: true,
+                scaleControl: true,
                 styles: [
                     { featureType: 'poi', stylers: [{ visibility: 'simplified' }] },
                     { featureType: 'transit', stylers: [{ visibility: 'simplified' }] }
                 ]
             });
 
+            // Device Marker
             marker = new google.maps.Marker({
                 position: defaultPos,
                 map: map,
@@ -774,23 +808,25 @@
                     strokeWeight: 3,
                     scale: 12
                 },
-                animation: google.maps.Animation.DROP
+                animation: google.maps.Animation.DROP,
+                title: 'Thiết bị GPS'
             });
 
+            // Info Window
             infoWindow = new google.maps.InfoWindow();
-            geocoder = new google.maps.Geocoder();
-
             marker.addListener('click', () => {
                 infoWindow.setContent(`
-                    <div style="font-family:Roboto,sans-serif;min-width:200px;padding:8px">
-                        <h3 style="font-size:16px;margin:0 0 8px">${document.getElementById('locationName').textContent}</h3>
+                    <div style="font-family:Roboto,sans-serif;min-width:220px;padding:8px">
+                        <h3 style="font-size:16px;margin:0 0 8px;color:#202124">${document.getElementById('locationName').textContent}</h3>
                         <p style="font-size:13px;color:#5f6368;margin:4px 0">${document.getElementById('locationAddress').textContent}</p>
                         <p style="font-size:13px;color:#5f6368;margin:4px 0"><b>Tốc độ:</b> ${document.getElementById('speedValue').textContent} km/h</p>
+                        <p style="font-size:13px;color:#5f6368;margin:4px 0"><b>Vệ tinh:</b> ${document.getElementById('satsValue').textContent}</p>
                     </div>
                 `);
                 infoWindow.open(map, marker);
             });
 
+            // Path Polyline
             polyline = new google.maps.Polyline({
                 path: [],
                 geodesic: true,
@@ -800,12 +836,160 @@
             });
             polyline.setMap(map);
 
+            // Services
+            geocoder = new google.maps.Geocoder();
+            placesService = new google.maps.places.PlacesService(map);
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: false,
+                polylineOptions: {
+                    strokeColor: '#4285f4',
+                    strokeWeight: 5
+                }
+            });
+
+            // Traffic Layer
+            trafficLayer = new google.maps.TrafficLayer();
+
+            // Street View
+            streetViewPanorama = map.getStreetView();
+
+            // Places Autocomplete - Search
+            autocomplete = new google.maps.places.Autocomplete(
+                document.getElementById('searchInput'),
+                {
+                    types: ['geocode', 'establishment'],
+                    componentRestrictions: { country: 'vn' },
+                    fields: ['place_id', 'geometry', 'name', 'formatted_address']
+                }
+            );
+
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (place.geometry) {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17);
+
+                    new google.maps.Marker({
+                        position: place.geometry.location,
+                        map: map,
+                        title: place.name,
+                        animation: google.maps.Animation.DROP,
+                        icon: {
+                            url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                        }
+                    });
+
+                    addLog(`Tìm thấy: ${place.name}`, 'success');
+                }
+            });
+
+            // Destination Autocomplete
+            new google.maps.places.Autocomplete(
+                document.getElementById('destinationInput'),
+                {
+                    types: ['geocode', 'establishment'],
+                    componentRestrictions: { country: 'vn' }
+                }
+            ).addListener('place_changed', function () {
+                const place = this.getPlace();
+                if (place.geometry) {
+                    calculateRoute(place.geometry.location);
+                }
+            });
+
+            // Search input clear button
+            document.getElementById('searchInput').addEventListener('input', function () {
+                document.getElementById('searchClear').classList.toggle('show', this.value.length > 0);
+            });
+
+            // Hide loading
             document.getElementById('loadingOverlay').classList.add('hidden');
 
+            // Start
             fetchLocation();
             setInterval(fetchLocation, REFRESH_INTERVAL);
             renderHistory();
             addLog('Google Maps đã sẵn sàng', 'success');
+        }
+
+        // ================== DIRECTIONS ==================
+        function toggleDirections() {
+            const panel = document.getElementById('directionsPanel');
+            const btn = document.getElementById('directionsBtn');
+            panel.classList.toggle('show');
+            btn.classList.toggle('active');
+        }
+
+        function closeDirections() {
+            document.getElementById('directionsPanel').classList.remove('show');
+            document.getElementById('directionsBtn').classList.remove('active');
+            directionsRenderer.setDirections({ routes: [] });
+            document.getElementById('directionsInfo').style.display = 'none';
+        }
+
+        function calculateRoute(destination) {
+            const origin = marker.getPosition();
+
+            directionsService.route({
+                origin: origin,
+                destination: destination,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+
+                    const route = result.routes[0].legs[0];
+                    document.getElementById('dirDuration').textContent = route.duration.text;
+                    document.getElementById('dirDistance').textContent = route.distance.text;
+                    document.getElementById('directionsInfo').style.display = 'flex';
+
+                    addLog(`Chỉ đường: ${route.distance.text}, ${route.duration.text}`, 'success');
+                } else {
+                    addLog(`Lỗi chỉ đường: ${status}`, 'error');
+                }
+            });
+        }
+
+        // ================== MAP CONTROLS ==================
+        function toggleTraffic() {
+            showTraffic = !showTraffic;
+            if (showTraffic) {
+                trafficLayer.setMap(map);
+                addLog('Bật lớp giao thông');
+            } else {
+                trafficLayer.setMap(null);
+                addLog('Tắt lớp giao thông');
+            }
+        }
+
+        function toggleStreetView() {
+            const pos = marker.getPosition();
+            streetViewPanorama.setPosition(pos);
+            streetViewPanorama.setVisible(!streetViewPanorama.getVisible());
+            addLog(streetViewPanorama.getVisible() ? 'Bật Street View' : 'Tắt Street View');
+        }
+
+        function centerMap() {
+            if (marker && map) {
+                map.setCenter(marker.getPosition());
+                map.setZoom(17);
+                addLog('Đã căn giữa bản đồ');
+            }
+        }
+
+        function toggleMapType() {
+            if (map) {
+                const type = map.getMapTypeId();
+                map.setMapTypeId(type === 'roadmap' ? 'satellite' : 'roadmap');
+                addLog(`Chế độ: ${type === 'roadmap' ? 'Vệ tinh' : 'Đường phố'}`);
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClear').classList.remove('show');
         }
 
         // ================== GEOCODING ==================
@@ -826,9 +1010,7 @@
                         }
 
                         let locationName = route ? (streetNumber ? `${streetNumber} ${route}` : route) : (sublocality || locality || 'Vị trí đã xác định');
-                        let fullAddress = result.formatted_address;
-
-                        resolve({ locationName, fullAddress });
+                        resolve({ locationName, fullAddress: result.formatted_address });
                     } else {
                         resolve({ locationName: 'Vị trí đã xác định', fullAddress: `${lat.toFixed(6)}, ${lng.toFixed(6)}` });
                     }
@@ -843,7 +1025,7 @@
             entry.className = `log-entry ${type}`;
             entry.textContent = `[${new Date().toLocaleTimeString('vi-VN')}] ${message}`;
             container.insertBefore(entry, container.firstChild);
-            while (container.children.length > 20) container.removeChild(container.lastChild);
+            while (container.children.length > 30) container.removeChild(container.lastChild);
         }
 
         function toggleLog() {
@@ -851,40 +1033,6 @@
             const arrow = document.getElementById('logArrow');
             container.classList.toggle('show');
             arrow.textContent = container.classList.contains('show') ? 'expand_less' : 'expand_more';
-        }
-
-        function updateStatus(isOnline, status) {
-            const badge = document.getElementById('statusBadge');
-            const statusEl = document.getElementById('gpsStatus');
-            let markerColor = '#1a73e8';
-
-            if (status === 'LAST_KNOWN') {
-                badge.className = 'status-badge status-lastknown';
-                badge.innerHTML = '<div class="status-dot dot-yellow"></div><span>Last Known</span>';
-                statusEl.textContent = 'LK';
-                markerColor = '#fbbc04';
-            } else if (isOnline) {
-                badge.className = 'status-badge status-online';
-                badge.innerHTML = '<div class="status-dot dot-green"></div><span>Trực tuyến</span>';
-                statusEl.textContent = 'LIVE';
-                markerColor = '#34a853';
-            } else {
-                badge.className = 'status-badge status-offline';
-                badge.innerHTML = '<div class="status-dot dot-red"></div><span>Ngoại tuyến</span>';
-                statusEl.textContent = 'OFF';
-                markerColor = '#9aa0a6';
-            }
-
-            if (marker) {
-                marker.setIcon({
-                    path: google.maps.SymbolPath.CIRCLE,
-                    fillColor: markerColor,
-                    fillOpacity: 1,
-                    strokeColor: '#ffffff',
-                    strokeWeight: 3,
-                    scale: 12
-                });
-            }
         }
 
         function formatAge(seconds) {
@@ -936,18 +1084,20 @@
 
         function goToHistory(i) {
             const item = locationHistory[i];
-            if (item && map) map.setCenter({ lat: item.lat, lng: item.lng });
+            if (item && map) {
+                map.setCenter({ lat: item.lat, lng: item.lng });
+                map.setZoom(17);
+            }
         }
 
         // ================== FETCH LOCATION ==================
         async function fetchLocation() {
             try {
-                const response = await fetch(`${workerUrl}/api/location?deviceId=${DEVICE_ID}`);
+                const response = await fetch(`${WORKER_URL}/api/location?deviceId=${DEVICE_ID}`);
 
                 if (!response.ok) {
                     if (response.status === 404) {
                         addLog('Device chưa gửi dữ liệu', 'error');
-                        updateStatus(false, 'OFFLINE');
                         return;
                     }
                     throw new Error(`HTTP ${response.status}`);
@@ -958,10 +1108,23 @@
 
                 const lat = data.lat;
                 const lng = data.lng;
-                const isOnline = data.ageSeconds < OFFLINE_THRESHOLD;
                 const status = data.status || 'LIVE';
 
                 marker.setPosition({ lat, lng });
+
+                // Update marker color based on status
+                let markerColor = '#34a853';
+                if (status === 'LAST_KNOWN') markerColor = '#fbbc04';
+                else if (data.ageSeconds >= OFFLINE_THRESHOLD) markerColor = '#9aa0a6';
+
+                marker.setIcon({
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: markerColor,
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 3,
+                    scale: 12
+                });
 
                 if (status === 'LIVE') {
                     if (path.length === 0 || path[path.length - 1].lat !== lat || path[path.length - 1].lng !== lng) {
@@ -976,56 +1139,42 @@
                 document.getElementById('locationName').textContent = locationName;
                 document.getElementById('locationAddress').textContent = fullAddress;
                 document.getElementById('locationCoords').textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                document.getElementById('addressDisplay').value = fullAddress;
                 document.getElementById('lastUpdate').textContent = `Cập nhật: ${formatAge(data.ageSeconds)}`;
                 document.getElementById('speedValue').textContent = (data.speed || 0).toFixed(1);
                 document.getElementById('satsValue').textContent = data.satellites || 0;
                 document.getElementById('csqValue').textContent = data.signalQuality || data.csq || 0;
-
-                updateStatus(isOnline, status);
+                document.getElementById('gpsStatus').textContent = status === 'LIVE' ? 'LIVE' : (status === 'LAST_KNOWN' ? 'LK' : 'OFF');
 
                 if (status === 'LIVE') addToHistory(lat, lng, locationName, fullAddress);
 
-                addLog(`📍 ${locationName} [${status}]`, 'success');
+                addLog(`📍 ${locationName}`, 'success');
 
             } catch (err) {
                 addLog(`Lỗi: ${err.message}`, 'error');
-                updateStatus(false, 'OFFLINE');
-            }
-        }
-
-        // ================== MAP CONTROLS ==================
-        function centerMap() {
-            if (marker && map) {
-                map.setCenter(marker.getPosition());
-                map.setZoom(17);
-            }
-        }
-
-        function toggleMapType() {
-            if (map) {
-                const type = map.getMapTypeId();
-                map.setMapTypeId(type === 'roadmap' ? 'satellite' : 'roadmap');
-                addLog(`Chế độ: ${type === 'roadmap' ? 'Vệ tinh' : 'Đường phố'}`);
-            }
-        }
-
-        function saveConfig() {
-            const url = document.getElementById('workerUrl').value.trim();
-            if (url) {
-                workerUrl = url;
-                localStorage.setItem('workerUrl', url);
-                addLog('Đã lưu Worker URL', 'success');
-                fetchLocation();
             }
         }
 
         addLog('Dashboard khởi động');
     </script>
 
-    <!-- ⚠️ THAY API KEY CỦA BẠN VÀO ĐÂY ⚠️ -->
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AQ.Ab8RN6LII7wH4Z091VaUBsFaQxU7sX-UpyIV0b-FPNx3gWE31g&callback=initMap">
-    </script>
+    <!-- 
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  🔑 THAY API KEY CỦA BẠN VÀO DƯỚI ĐÂY                            ║
+    ║                                                                   ║
+    ║  📋 CÁC API CẦN KÍCH HOẠT TRONG GOOGLE CLOUD CONSOLE:            ║
+    ║                                                                   ║
+    ║  1. Maps JavaScript API          - Hiển thị bản đồ               ║
+    ║  2. Geocoding API                - Chuyển tọa độ → địa chỉ       ║
+    ║  3. Places API                   - Tìm kiếm địa điểm             ║
+    ║  4. Directions API               - Chỉ đường                     ║
+    ║  5. Street View Static API       - Street View                   ║
+    ║                                                                   ║
+    ║  🔗 Link: https://console.cloud.google.com/google/maps-apis      ║
+    ╚══════════════════════════════════════════════════════════════════╝
+    -->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AQ.Ab8RN6LII7wH4Z091VaUBsFaQxU7sX-UpyIV0b-FPNx3gWE31g&libraries=places&callback=initMap">
+        </script>
 </body>
 
 </html>
