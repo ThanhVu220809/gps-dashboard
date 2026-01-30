@@ -4,10 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🛰️ GPS Tracker - Live Dashboard</title>
+    <title>GPS Tracker - Live Map</title>
+    <meta name="description" content="Real-time GPS tracking dashboard with Google Maps">
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 
     <style>
         * {
@@ -17,74 +23,155 @@
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #f1f5f9;
+            font-family: 'Roboto', 'Google Sans', sans-serif;
+            background: #f8f9fa;
+            color: #202124;
             min-height: 100vh;
+            overflow: hidden;
         }
 
+        /* ============ GOOGLE MAPS STYLE HEADER ============ */
         .header {
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #334155;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
             display: flex;
             align-items: center;
-            gap: 10px;
+            padding: 0 16px;
+            z-index: 1000;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .menu-btn:hover {
+            background: rgba(60, 64, 67, 0.08);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+            font-weight: 500;
+            color: #5f6368;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo span {
+            color: #1a73e8;
+            font-family: 'Google Sans', sans-serif;
+        }
+
+        /* Search Box */
+        .search-box {
+            flex: 1;
+            max-width: 720px;
+            margin: 0 24px;
+            position: relative;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f1f3f4;
+            border-radius: 8px;
+            padding: 0 12px;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input-wrapper:focus-within {
+            background: #fff;
+            box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+        }
+
+        .search-input {
+            flex: 1;
+            height: 48px;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            color: #202124;
+            outline: none;
+            padding: 0 12px;
+        }
+
+        .search-input::placeholder {
+            color: #5f6368;
+        }
+
+        .search-icon {
+            color: #5f6368;
+        }
+
+        /* Status Badge */
         .status-badge {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: auto;
         }
 
         .status-online {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-            border: 1px solid #22c55e;
+            background: #e6f4ea;
+            color: #137333;
         }
 
         .status-offline {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid #ef4444;
+            background: #fce8e6;
+            color: #c5221f;
         }
 
         .status-lastknown {
-            background: rgba(234, 179, 8, 0.2);
-            color: #eab308;
-            border: 1px solid #eab308;
+            background: #fef7e0;
+            color: #b06000;
         }
 
-        .pulse {
-            width: 10px;
-            height: 10px;
+        .status-dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             animation: pulse 2s infinite;
         }
 
-        .pulse-green {
-            background: #22c55e;
+        .dot-green {
+            background: #34a853;
         }
 
-        .pulse-red {
-            background: #ef4444;
+        .dot-red {
+            background: #ea4335;
         }
 
-        .pulse-yellow {
-            background: #eab308;
+        .dot-yellow {
+            background: #fbbc04;
         }
 
         @keyframes pulse {
@@ -96,305 +183,673 @@
             }
 
             50% {
-                opacity: 0.5;
-                transform: scale(1.2);
+                opacity: 0.6;
+                transform: scale(1.15);
             }
         }
 
-        .container {
+        /* ============ MAIN LAYOUT ============ */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+            margin-top: 64px;
+        }
+
+        /* ============ SIDEBAR ============ */
+        .sidebar {
+            width: 420px;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(60, 64, 67, 0.15);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8eaed;
+        }
+
+        .location-name {
+            font-size: 22px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 4px;
+            font-family: 'Google Sans', sans-serif;
+        }
+
+        .location-address {
+            font-size: 14px;
+            color: #5f6368;
+            line-height: 1.5;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e8eaed;
+        }
+
+        .stats-grid {
             display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 0;
-            height: calc(100vh - 70px);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
         }
 
-        @media (max-width: 800px) {
-            .container {
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr auto;
-            }
+        .stat-card {
+            text-align: center;
+            padding: 12px 8px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+
+        .stat-card:hover {
+            background: #e8f0fe;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a73e8;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #5f6368;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Last Update */
+        .update-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #e8f0fe;
+            font-size: 13px;
+            color: #1967d2;
+        }
+
+        /* History Section */
+        .history-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+
+        .section-title {
+            padding: 8px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-list {
+            list-style: none;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: background 0.15s;
+            gap: 16px;
+        }
+
+        .history-item:hover {
+            background: #f1f3f4;
+        }
+
+        .history-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e8f0fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a73e8;
+            flex-shrink: 0;
+        }
+
+        .history-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-name {
+            font-size: 14px;
+            color: #202124;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-address {
+            font-size: 12px;
+            color: #5f6368;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-time {
+            font-size: 12px;
+            color: #9aa0a6;
+            margin-top: 4px;
+        }
+
+        /* Log Section */
+        .log-section {
+            border-top: 1px solid #e8eaed;
+            max-height: 200px;
+            overflow: hidden;
+        }
+
+        .log-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .log-toggle:hover {
+            background: #f1f3f4;
+        }
+
+        .log-container {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 0 24px 12px;
+            display: none;
+        }
+
+        .log-container.show {
+            display: block;
+        }
+
+        .log-entry {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 11px;
+            color: #5f6368;
+            padding: 4px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .log-entry.success {
+            color: #137333;
+        }
+
+        .log-entry.error {
+            color: #c5221f;
+        }
+
+        /* ============ MAP CONTAINER ============ */
+        .map-container {
+            flex: 1;
+            position: relative;
         }
 
         #map {
             width: 100%;
             height: 100%;
-            z-index: 1;
         }
 
-        .sidebar {
-            background: rgba(15, 23, 42, 0.95);
-            padding: 20px;
-            overflow-y: auto;
-            border-left: 1px solid #334155;
+        /* Map Controls */
+        .map-controls {
+            position: absolute;
+            bottom: 120px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
         }
 
-        .card {
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid #334155;
-        }
-
-        .card-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #64748b;
-            margin-bottom: 12px;
-        }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 12px;
-            background: #0f172a;
+        .map-btn {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border: none;
             border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5f6368;
+            transition: color 0.2s, background 0.2s;
         }
 
-        .stat-label {
-            font-size: 0.7rem;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 4px;
+        .map-btn:hover {
+            background: #f8f9fa;
+            color: #1a73e8;
         }
 
-        .stat-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #3b82f6;
-        }
-
-        .stat-value.green {
-            color: #22c55e;
-        }
-
-        .stat-value.red {
-            color: #ef4444;
-        }
-
-        .stat-value.yellow {
-            color: #eab308;
-        }
-
-        .coord-display {
-            font-family: 'Consolas', monospace;
-            font-size: 1rem;
-            color: #94a3b8;
-            padding: 10px;
-            background: #0f172a;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .last-update {
-            text-align: center;
-            font-size: 0.8rem;
-            color: #64748b;
-            margin-top: 12px;
-        }
-
-        .log-container {
-            margin-top: 16px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .log-entry {
-            font-family: monospace;
-            font-size: 0.75rem;
-            color: #64748b;
-            padding: 4px 0;
-            border-bottom: 1px solid #1e293b;
-        }
-
-        .log-entry.success {
-            color: #22c55e;
-        }
-
-        .log-entry.error {
-            color: #ef4444;
-        }
-
+        /* Config Modal */
         .config-section {
-            margin-top: 20px;
+            padding: 16px 24px;
+            border-top: 1px solid #e8eaed;
+            background: #f8f9fa;
         }
 
         .config-input {
             width: 100%;
-            padding: 10px;
-            background: #0f172a;
-            border: 1px solid #334155;
+            padding: 12px 16px;
+            border: 1px solid #dadce0;
             border-radius: 8px;
-            color: #f1f5f9;
-            font-size: 0.9rem;
+            font-size: 14px;
+            color: #202124;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .config-input:focus {
             outline: none;
-            border-color: #3b82f6;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
         }
 
         .btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            background: #1a73e8;
             border: none;
             border-radius: 8px;
-            color: white;
-            font-weight: 600;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            margin-top: 10px;
-            transition: transform 0.2s, opacity 0.2s;
+            margin-top: 12px;
+            transition: background 0.2s, box-shadow 0.2s;
         }
 
         .btn:hover {
-            transform: translateY(-1px);
-            opacity: 0.9;
+            background: #1557b0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
-        /* Custom marker styles */
-        .marker-online {
-            background: #22c55e;
-            border: 3px solid #fff;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+        /* Google Maps Style InfoWindow */
+        .gm-style .gm-style-iw-c {
+            padding: 16px !important;
+            border-radius: 16px !important;
         }
 
-        .marker-offline {
-            background: #64748b;
-            border: 3px solid #fff;
+        .info-window {
+            font-family: 'Roboto', sans-serif;
+            min-width: 200px;
+        }
+
+        .info-window h3 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .info-window p {
+            font-size: 13px;
+            color: #5f6368;
+            margin: 4px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 50vh;
+                border-radius: 16px 16px 0 0;
+                z-index: 500;
+            }
+
+            .search-box {
+                display: none;
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e8eaed;
+            border-top-color: #1a73e8;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
 
 <body>
-
-    <div class="header">
-        <h1>🛰️ GPS Tracker</h1>
-        <div id="statusBadge" class="status-badge status-offline">
-            <div class="pulse pulse-red"></div>
-            <span>Đang kết nối...</span>
-        </div>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
     </div>
 
-    <div class="container">
-        <div id="map"></div>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn">
+                <span class="material-icons-outlined">menu</span>
+            </button>
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 92.3 132.3">
+                    <path fill="#1a73e8" d="M60.2 2.2C55.8.8 51 0 46.1 0 32 0 19.3 6.4 10.8 16.5l21.8 18.3L60.2 2.2z" />
+                    <path fill="#ea4335"
+                        d="M10.8 16.5C4.1 24.5 0 34.9 0 46.1c0 8.7 1.7 15.7 4.6 22l28-33.3-21.8-18.3z" />
+                    <path fill="#4285f4"
+                        d="M46.2 28.5c9.8 0 17.7 7.9 17.7 17.7 0 4.3-1.6 8.3-4.2 11.4 0 0 13.9-16.6 27.5-32.7-5.6-10.8-15.3-19-27-22.7L32.6 34.8c3.3-3.8 8.1-6.3 13.6-6.3" />
+                    <path fill="#fbbc04"
+                        d="M46.2 63.8c-9.8 0-17.7-7.9-17.7-17.7 0-4.3 1.5-8.3 4.1-11.3l-28 33.3c4.8 10.6 12.8 19.2 21 29.9l34.1-40.5c-3.3 3.9-8.1 6.3-13.5 6.3" />
+                    <path fill="#34a853"
+                        d="M59.1 109.2c15.4-24.1 33.3-35 33.3-63 0-7.7-1.9-14.9-5.2-21.3L25.6 98c2.6 3.4 5.3 7.3 7.9 11.3 9.4 14.5 6.8 23.1 12.8 23.1s3.4-8.7 12.8-23.2" />
+                </svg>
+                <span>GPS Tracker</span>
+            </div>
+        </div>
 
-        <div class="sidebar">
-            <!-- Location Card -->
-            <div class="card">
-                <div class="card-title">📍 Vị trí hiện tại</div>
-                <div class="coord-display" id="coordDisplay">
-                    Đang tải...
-                </div>
-                <div class="last-update" id="lastUpdate">
-                    Chưa có dữ liệu
-                </div>
+        <div class="search-box">
+            <div class="search-input-wrapper">
+                <span class="material-icons-outlined search-icon">search</span>
+                <input type="text" class="search-input" id="addressDisplay" placeholder="Tìm kiếm vị trí..." readonly>
+            </div>
+        </div>
+
+        <div id="statusBadge" class="status-badge status-offline">
+            <div class="status-dot dot-red"></div>
+            <span>Đang kết nối...</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="location-name" id="locationName">Đang tải vị trí...</h1>
+                <p class="location-address" id="locationAddress">--</p>
             </div>
 
-            <!-- Stats Card -->
-            <div class="card">
-                <div class="card-title">📊 Thông số</div>
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="stat-label">Tốc độ</div>
+            <!-- Stats -->
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🚀</div>
                         <div class="stat-value" id="speedValue">--</div>
+                        <div class="stat-label">Tốc độ</div>
                     </div>
-                    <div class="stat-item">
+                    <div class="stat-card">
+                        <div class="stat-icon">🛰️</div>
+                        <div class="stat-value" id="satsValue">--</div>
                         <div class="stat-label">Vệ tinh</div>
-                        <div class="stat-value green" id="satsValue">--</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Sóng 4G</div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📶</div>
                         <div class="stat-value" id="csqValue">--</div>
+                        <div class="stat-label">Sóng 4G</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Trạng thái</div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📍</div>
                         <div class="stat-value" id="gpsStatus">--</div>
+                        <div class="stat-label">Trạng thái</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Log Card -->
-            <div class="card">
-                <div class="card-title">📝 Activity Log</div>
+            <!-- Update Info -->
+            <div class="update-info" id="updateInfo">
+                <span class="material-icons-outlined">schedule</span>
+                <span id="lastUpdate">Chưa có dữ liệu</span>
+            </div>
+
+            <!-- History -->
+            <div class="history-section">
+                <div class="section-title">
+                    <span class="material-icons-outlined">history</span>
+                    Lịch sử vị trí
+                </div>
+                <ul class="history-list" id="historyList">
+                    <li class="history-item" style="justify-content: center; color: #5f6368;">
+                        Chưa có lịch sử
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Log Section -->
+            <div class="log-section">
+                <div class="log-toggle" onclick="toggleLog()">
+                    <div class="section-title" style="padding: 0;">
+                        <span class="material-icons-outlined">terminal</span>
+                        Activity Log
+                    </div>
+                    <span class="material-icons-outlined" id="logArrow">expand_more</span>
+                </div>
                 <div class="log-container" id="logContainer">
                     <div class="log-entry">Khởi động dashboard...</div>
                 </div>
             </div>
 
-            <!-- Config Section -->
+            <!-- Config -->
             <div class="config-section">
                 <input type="text" class="config-input" id="workerUrl"
-                    placeholder="Worker URL (e.g., https://gps-tracker.xxx.workers.dev)" value="">
-                <button class="btn" onclick="saveConfig()">💾 Lưu cấu hình</button>
+                    placeholder="Worker URL (e.g., https://gps-tracker.xxx.workers.dev)">
+                <button class="btn" onclick="saveConfig()">
+                    <span class="material-icons-outlined"
+                        style="font-size: 18px; vertical-align: middle; margin-right: 8px;">save</span>
+                    Lưu cấu hình
+                </button>
+            </div>
+        </aside>
+
+        <!-- Map -->
+        <div class="map-container">
+            <div id="map"></div>
+
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button class="map-btn" onclick="centerMap()" title="Về vị trí hiện tại">
+                    <span class="material-icons-outlined">my_location</span>
+                </button>
+                <button class="map-btn" onclick="toggleMapType()" title="Đổi kiểu bản đồ">
+                    <span class="material-icons-outlined">layers</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+    <!-- Google Maps API -->
     <script>
         // ================== CONFIG ==================
+        const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // Replace with your API key
         const DEFAULT_WORKER_URL = 'https://gps-tracker.thanhvu220809.workers.dev';
         const DEVICE_ID = 'device_01';
-        const REFRESH_INTERVAL = 5000; // 5 seconds
-        const OFFLINE_THRESHOLD = 300; // 5 minutes in seconds
+        const REFRESH_INTERVAL = 5000;
+        const OFFLINE_THRESHOLD = 300;
 
         let workerUrl = localStorage.getItem('workerUrl') || DEFAULT_WORKER_URL;
         document.getElementById('workerUrl').value = workerUrl;
 
-        // ================== MAP SETUP ==================
-        const defaultLat = 10.823099;
-        const defaultLng = 106.629662;
+        let map, marker, path = [], polyline;
+        let infoWindow;
+        let locationHistory = JSON.parse(localStorage.getItem('locationHistory') || '[]');
 
-        const map = L.map('map').setView([defaultLat, defaultLng], 15);
+        // ================== INITIALIZE GOOGLE MAPS ==================
+        function initMap() {
+            const defaultLat = 10.823099;
+            const defaultLng = 106.629662;
 
-        // Dark map tiles
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap &copy; CARTO',
-            maxZoom: 19
-        }).addTo(map);
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: defaultLat, lng: defaultLng },
+                zoom: 15,
+                mapTypeId: 'roadmap',
+                styles: [
+                    { featureType: 'poi', stylers: [{ visibility: 'simplified' }] },
+                    { featureType: 'transit', stylers: [{ visibility: 'simplified' }] }
+                ],
+                disableDefaultUI: false,
+                zoomControl: true,
+                mapTypeControl: false,
+                streetViewControl: true,
+                fullscreenControl: true,
+                gestureHandling: 'greedy'
+            });
 
-        // Custom marker icons
-        const onlineIcon = L.divIcon({
-            className: 'marker-online-wrapper',
-            html: '<div style="background:#22c55e;border:3px solid #fff;border-radius:50%;width:20px;height:20px;box-shadow:0 0 15px rgba(34,197,94,0.8);"></div>',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
-        });
+            // Custom marker
+            marker = new google.maps.Marker({
+                position: { lat: defaultLat, lng: defaultLng },
+                map: map,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: '#1a73e8',
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 3,
+                    scale: 12
+                },
+                animation: google.maps.Animation.DROP
+            });
 
-        const offlineIcon = L.divIcon({
-            className: 'marker-offline-wrapper',
-            html: '<div style="background:#64748b;border:3px solid #fff;border-radius:50%;width:20px;height:20px;"></div>',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
-        });
+            // Info window
+            infoWindow = new google.maps.InfoWindow();
 
-        const lastKnownIcon = L.divIcon({
-            className: 'marker-lastknown-wrapper',
-            html: '<div style="background:#eab308;border:3px solid #fff;border-radius:50%;width:20px;height:20px;box-shadow:0 0 10px rgba(234,179,8,0.6);"></div>',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
-        });
+            marker.addListener('click', () => {
+                const content = `
+                    <div class="info-window">
+                        <h3>${document.getElementById('locationName').textContent}</h3>
+                        <p>${document.getElementById('locationAddress').textContent}</p>
+                        <p><strong>Tốc độ:</strong> ${document.getElementById('speedValue').textContent}</p>
+                        <p><strong>Cập nhật:</strong> ${document.getElementById('lastUpdate').textContent}</p>
+                    </div>
+                `;
+                infoWindow.setContent(content);
+                infoWindow.open(map, marker);
+            });
 
-        let marker = L.marker([defaultLat, defaultLng], { icon: offlineIcon }).addTo(map);
-        let path = [];
-        let polyline = L.polyline([], { color: '#3b82f6', weight: 3, opacity: 0.7 }).addTo(map);
+            // Polyline for path
+            polyline = new google.maps.Polyline({
+                path: [],
+                geodesic: true,
+                strokeColor: '#1a73e8',
+                strokeOpacity: 0.8,
+                strokeWeight: 4
+            });
+            polyline.setMap(map);
 
-        // ================== FUNCTIONS ==================
+            // Hide loading
+            document.getElementById('loadingOverlay').classList.add('hidden');
+
+            // Start fetching
+            fetchLocation();
+            setInterval(fetchLocation, REFRESH_INTERVAL);
+            renderHistory();
+        }
+
+        // ================== GEOCODING ==================
+        async function getAddressFromCoords(lat, lng) {
+            try {
+                const geocoder = new google.maps.Geocoder();
+                const response = await geocoder.geocode({ location: { lat, lng } });
+
+                if (response.results && response.results[0]) {
+                    const result = response.results[0];
+
+                    // Get different components
+                    let streetNumber = '';
+                    let route = '';
+                    let sublocality = '';
+                    let locality = '';
+                    let administrativeArea = '';
+
+                    for (const component of result.address_components) {
+                        if (component.types.includes('street_number')) {
+                            streetNumber = component.long_name;
+                        }
+                        if (component.types.includes('route')) {
+                            route = component.long_name;
+                        }
+                        if (component.types.includes('sublocality') || component.types.includes('sublocality_level_1')) {
+                            sublocality = component.long_name;
+                        }
+                        if (component.types.includes('locality') || component.types.includes('administrative_area_level_2')) {
+                            locality = component.long_name;
+                        }
+                        if (component.types.includes('administrative_area_level_1')) {
+                            administrativeArea = component.long_name;
+                        }
+                    }
+
+                    // Build location name
+                    let locationName = '';
+                    if (route) {
+                        locationName = streetNumber ? `${streetNumber} ${route}` : route;
+                    } else if (sublocality) {
+                        locationName = sublocality;
+                    } else {
+                        locationName = locality || 'Vị trí không xác định';
+                    }
+
+                    const fullAddress = result.formatted_address;
+
+                    return { locationName, fullAddress };
+                }
+            } catch (error) {
+                console.error('Geocoding error:', error);
+            }
+
+            return { locationName: 'Vị trí không xác định', fullAddress: `${lat.toFixed(6)}, ${lng.toFixed(6)}` };
+        }
+
+        // ================== UI FUNCTIONS ==================
         function addLog(message, type = 'info') {
             const container = document.getElementById('logContainer');
             const entry = document.createElement('div');
@@ -403,10 +858,16 @@
             entry.textContent = `[${time}] ${message}`;
             container.insertBefore(entry, container.firstChild);
 
-            // Keep only last 20 entries
             while (container.children.length > 20) {
                 container.removeChild(container.lastChild);
             }
+        }
+
+        function toggleLog() {
+            const container = document.getElementById('logContainer');
+            const arrow = document.getElementById('logArrow');
+            container.classList.toggle('show');
+            arrow.textContent = container.classList.contains('show') ? 'expand_less' : 'expand_more';
         }
 
         function updateStatus(isOnline, status) {
@@ -415,28 +876,110 @@
 
             if (status === 'LAST_KNOWN') {
                 badge.className = 'status-badge status-lastknown';
-                badge.innerHTML = '<div class="pulse pulse-yellow"></div><span>Last Known</span>';
+                badge.innerHTML = '<div class="status-dot dot-yellow"></div><span>Last Known</span>';
                 statusEl.textContent = 'LK';
-                statusEl.className = 'stat-value yellow';
             } else if (isOnline) {
                 badge.className = 'status-badge status-online';
-                badge.innerHTML = '<div class="pulse pulse-green"></div><span>Online</span>';
+                badge.innerHTML = '<div class="status-dot dot-green"></div><span>Trực tuyến</span>';
                 statusEl.textContent = 'LIVE';
-                statusEl.className = 'stat-value green';
             } else {
                 badge.className = 'status-badge status-offline';
-                badge.innerHTML = '<div class="pulse pulse-red"></div><span>Offline</span>';
+                badge.innerHTML = '<div class="status-dot dot-red"></div><span>Ngoại tuyến</span>';
                 statusEl.textContent = 'OFF';
-                statusEl.className = 'stat-value red';
+            }
+
+            // Update marker color
+            if (marker) {
+                let fillColor = '#1a73e8';
+                if (status === 'LAST_KNOWN') fillColor = '#fbbc04';
+                else if (!isOnline) fillColor = '#9aa0a6';
+                else fillColor = '#34a853';
+
+                marker.setIcon({
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: fillColor,
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 3,
+                    scale: 12
+                });
             }
         }
 
         function formatAge(seconds) {
-            if (seconds < 60) return `${seconds}s ago`;
-            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-            return `${Math.floor(seconds / 3600)}h ago`;
+            if (seconds < 60) return `${seconds} giây trước`;
+            if (seconds < 3600) return `${Math.floor(seconds / 60)} phút trước`;
+            return `${Math.floor(seconds / 3600)} giờ trước`;
         }
 
+        // ================== HISTORY ==================
+        function addToHistory(lat, lng, locationName, fullAddress) {
+            const now = new Date();
+            const entry = {
+                lat,
+                lng,
+                locationName,
+                fullAddress,
+                timestamp: now.toISOString(),
+                timeString: now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            // Avoid duplicates (same location within 100m)
+            if (locationHistory.length > 0) {
+                const last = locationHistory[0];
+                const distance = getDistance(lat, lng, last.lat, last.lng);
+                if (distance < 100) return; // Skip if within 100m
+            }
+
+            locationHistory.unshift(entry);
+            if (locationHistory.length > 10) locationHistory.pop(); // Keep last 10
+
+            localStorage.setItem('locationHistory', JSON.stringify(locationHistory));
+            renderHistory();
+        }
+
+        function getDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371000;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+
+            if (locationHistory.length === 0) {
+                list.innerHTML = '<li class="history-item" style="justify-content: center; color: #5f6368;">Chưa có lịch sử</li>';
+                return;
+            }
+
+            list.innerHTML = locationHistory.map((item, index) => `
+                <li class="history-item" onclick="goToHistoryLocation(${index})">
+                    <div class="history-icon">
+                        <span class="material-icons-outlined">place</span>
+                    </div>
+                    <div class="history-content">
+                        <div class="history-name">${item.locationName}</div>
+                        <div class="history-address">${item.fullAddress}</div>
+                        <div class="history-time">${item.timeString}</div>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function goToHistoryLocation(index) {
+            const item = locationHistory[index];
+            if (item && map) {
+                map.setCenter({ lat: item.lat, lng: item.lng });
+                map.setZoom(17);
+            }
+        }
+
+        // ================== FETCH LOCATION ==================
         async function fetchLocation() {
             try {
                 const url = `${workerUrl}/api/location?deviceId=${DEVICE_ID}`;
@@ -452,41 +995,36 @@
                 }
 
                 const response_data = await response.json();
-
-                // API returns { success: true, data: {...} }
                 const data = response_data.data || response_data;
 
-                // Update map
                 const lat = data.lat;
                 const lng = data.lng;
                 const isOnline = data.ageSeconds < OFFLINE_THRESHOLD;
                 const status = data.status || 'LIVE';
 
-                // Update marker position and icon
-                marker.setLatLng([lat, lng]);
-
-                if (status === 'LAST_KNOWN') {
-                    marker.setIcon(lastKnownIcon);
-                } else if (isOnline) {
-                    marker.setIcon(onlineIcon);
-                } else {
-                    marker.setIcon(offlineIcon);
+                // Update marker position
+                if (marker) {
+                    marker.setPosition({ lat, lng });
                 }
 
                 // Update path
                 if (status === 'LIVE' && path.length === 0 ||
-                    (path.length > 0 && (path[path.length - 1][0] !== lat || path[path.length - 1][1] !== lng))) {
-                    path.push([lat, lng]);
-                    if (path.length > 100) path.shift(); // Keep last 100 points
-                    polyline.setLatLngs(path);
+                    (path.length > 0 && (path[path.length - 1].lat !== lat || path[path.length - 1].lng !== lng))) {
+                    path.push({ lat, lng });
+                    if (path.length > 100) path.shift();
+                    if (polyline) polyline.setPath(path);
                 }
 
+                // Get address from coordinates
+                const { locationName, fullAddress } = await getAddressFromCoords(lat, lng);
+
                 // Update UI
-                document.getElementById('coordDisplay').textContent =
-                    `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                document.getElementById('locationName').textContent = locationName;
+                document.getElementById('locationAddress').textContent = fullAddress;
+                document.getElementById('addressDisplay').value = fullAddress;
 
                 document.getElementById('lastUpdate').textContent =
-                    `Cập nhật: ${formatAge(data.ageSeconds)} (${data.updatedAt || 'N/A'})`;
+                    `Cập nhật: ${formatAge(data.ageSeconds)}`;
 
                 document.getElementById('speedValue').textContent =
                     `${(data.speed || 0).toFixed(1)} km/h`;
@@ -499,12 +1037,32 @@
 
                 updateStatus(isOnline, status);
 
-                addLog(`Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)} [${status}]`, 'success');
+                // Add to history
+                if (status === 'LIVE') {
+                    addToHistory(lat, lng, locationName, fullAddress);
+                }
+
+                addLog(`${locationName} [${status}]`, 'success');
 
             } catch (err) {
                 console.error('Fetch error:', err);
                 addLog(`Lỗi: ${err.message}`, 'error');
                 updateStatus(false, 'OFFLINE');
+            }
+        }
+
+        // ================== MAP CONTROLS ==================
+        function centerMap() {
+            if (marker && map) {
+                map.setCenter(marker.getPosition());
+                map.setZoom(16);
+            }
+        }
+
+        function toggleMapType() {
+            if (map) {
+                const currentType = map.getMapTypeId();
+                map.setMapTypeId(currentType === 'roadmap' ? 'satellite' : 'roadmap');
             }
         }
 
@@ -518,35 +1076,15 @@
             }
         }
 
-        // Center map on marker
-        function centerMap() {
-            const pos = marker.getLatLng();
-            map.setView(pos, 16);
-        }
-
-        // Add center button to map
-        L.Control.CenterButton = L.Control.extend({
-            onAdd: function (map) {
-                const btn = L.DomUtil.create('button');
-                btn.innerHTML = '📍';
-                btn.style.cssText = 'width:36px;height:36px;font-size:20px;cursor:pointer;background:#1e293b;border:none;border-radius:8px;';
-                btn.onclick = centerMap;
-                return btn;
-            }
-        });
-        new L.Control.CenterButton({ position: 'topright' }).addTo(map);
-
         // ================== INIT ==================
         addLog('Dashboard khởi động');
-        addLog(`Refresh: ${REFRESH_INTERVAL / 1000}s`);
-
-        // Initial fetch
-        fetchLocation();
-
-        // Auto-refresh
-        setInterval(fetchLocation, REFRESH_INTERVAL);
+        addLog(`Refresh interval: ${REFRESH_INTERVAL / 1000}s`);
     </script>
 
+    <!-- Load Google Maps API -->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap&libraries=places">
+        </script>
 </body>
 
 </html>
